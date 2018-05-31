@@ -64,13 +64,22 @@
         _config = [YTKNetworkConfig sharedConfig];
         _manager = [[AFHTTPSessionManager alloc] initWithSessionConfiguration:_config.sessionConfiguration];
         _requestsRecord = [NSMutableDictionary dictionary];
-        _processingQueue = dispatch_queue_create("com.yuantiku.networkagent.processing", DISPATCH_QUEUE_CONCURRENT);
+        _processingQueue = dispatch_queue_create("com.gaoji.networkagent.processing", DISPATCH_QUEUE_CONCURRENT);
         _allStatusCodes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(100, 500)];
         pthread_mutex_init(&_lock, NULL);
 
         _manager.securityPolicy = _config.securityPolicy;
         _manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-        // Take over the status code validation
+        _manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"text/plain",
+                                                                                   @"application/json",
+                                                                                    @"text/json",
+                                                                                    @"text/javascript",
+                                                                                    @"text/html",
+                                                                                    @"multipart/form-data",
+                                                                                    @"application/problem+json",
+                                                                                    @"text/plain",
+                                                                                    nil];
+        //Take over the status code validation
         _manager.responseSerializer.acceptableStatusCodes = _allStatusCodes;
         _manager.completionQueue = _processingQueue;
     }
